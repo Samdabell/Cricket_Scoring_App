@@ -5,6 +5,7 @@ namespace CricketScoringApp
 {
     public class Team
     {
+        public string Name { get; set; }
         public int Runs { get; set; }
         public int Wickets { get; set; }
         public int Byes { get; set; }
@@ -14,8 +15,9 @@ namespace CricketScoringApp
         public int Extras { get; set; }
         public List<Player> Players; 
 
-        public Team(List<Player> players)
+        public Team(string name, List<Player> players)
         {
+            Name = name;
             Players = players;
         }
 
@@ -50,12 +52,12 @@ namespace CricketScoringApp
 
 		public void AddWides(int run)
 		{
-			Wides += run;
+            Wides += run;
 		}
 
 		public void AddNoBalls(int run)
 		{
-			NoBalls += run;
+            NoBalls += run;
 		}
 
         public void CalcWickets()

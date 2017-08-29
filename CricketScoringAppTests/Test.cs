@@ -89,7 +89,7 @@ namespace CricketScoringAppTests
             {
                 player1, player2, player3, player4, player5
             };
-            testTeam = new Team(players);
+            testTeam = new Team("CodeClan Cricket Club", players);
         }
 
 		[Test()]
@@ -135,4 +135,215 @@ namespace CricketScoringAppTests
 		}
 
 	}
+
+    [TestFixture()]
+    public class MatchTest
+    {
+        public Player player1;
+        public Player player2;
+        public Player player3;
+        public Player player4;
+        public Player player5;
+        public Player player6;
+        public Player player7;
+        public Player player8;
+        public Player player9;
+        public Player player10;
+        public Team team1;
+        public Team team2;
+        public List<Player> players1;
+        public List<Player> players2;
+        public Match testMatch;
+        [SetUp]
+        public void BeforeTest()
+        {
+            player1 = new Player("Sam");
+            player2 = new Player("Craw");
+            player3 = new Player("Tasha");
+            player4 = new Player("Colin");
+            player5 = new Player("Stu");
+            players1 = new List<Player>
+            {
+                player1, player2, player3, player4, player5
+            };
+            team1 = new Team("CodeClan Cricket Club", players1);
+            player6 = new Player("Alan");
+            player7 = new Player("Jia");
+            player8 = new Player("Graham");
+            player9 = new Player("Mick");
+            player10 = new Player("Chris");
+            players2 = new List<Player>
+            {
+                player6, player7, player8, player9, player10
+            };
+            team2 = new Team("Tontine Cricket Club", players2);
+            testMatch = new Match(team1, team2, 20);
+        }
+
+        [Test()]
+        public void TestInitialSetBatsmen()
+        {
+            Assert.AreEqual(testMatch.OnStrike, player1);
+            Assert.AreEqual(testMatch.OffStrike, player2);
+            Assert.IsTrue(player1.HasBatted);
+        }
+
+		[Test()]
+		public void TestSetBatsmenAfterWicket()
+		{
+            player1.IsOut = true;
+            testMatch.SetBatsmen();
+			Assert.AreEqual(testMatch.OnStrike, player3, "onstrike wrong");
+			Assert.AreEqual(testMatch.OffStrike, player2, "offstrike wrong");
+		}
+
+        [Test()]
+        public void TestInEndDueToOvers()
+        {
+            testMatch.Batting.Runs = 140;
+            testMatch.Overs = 20;
+            testMatch.InEndCheck();
+            Assert.AreEqual(team2, testMatch.Batting);
+            Assert.AreEqual(0, testMatch.Overs);
+            Assert.AreEqual(140, testMatch.FirstInScore);
+        }
+
+		[Test()]
+		public void TestInEndDueToWickets()
+		{
+			testMatch.Batting.Runs = 140;
+			testMatch.Overs = 10;
+            player1.IsOut = true;
+            player2.IsOut = true;
+            player3.IsOut = true;
+            player4.IsOut = true;
+            testMatch.Batting.CalcWickets();
+			testMatch.InEndCheck();
+			Assert.AreEqual(team2, testMatch.Batting);
+			Assert.AreEqual(0, testMatch.Overs);
+			Assert.AreEqual(140, testMatch.FirstInScore);
+		}
+
+        [Test()]
+        public void Test2ndInEndTeam1Win()
+        {
+            team1.Runs = 140;
+            testMatch.Overs = 20;
+            testMatch.InEndCheck();
+            testMatch.Batting.Runs = 120;
+            testMatch.Overs = 20;
+            testMatch.InEndCheck();
+            Assert.AreEqual(team1, testMatch.Winners);
+            Assert.AreEqual(120, team2.Runs);
+        }
+
+        [Test()]
+        public void Test2ndInEndTeam2Win()
+        {
+			team1.Runs = 140;
+			testMatch.Overs = 20;
+			testMatch.InEndCheck();
+			testMatch.Batting.Runs = 141;
+			testMatch.Overs = 20;
+			testMatch.InEndCheck();
+			Assert.AreEqual(team2, testMatch.Winners);
+            Assert.AreEqual(140, testMatch.FirstInScore);
+			Assert.AreEqual(141, team2.Runs);
+        }
+
+        [Test()]
+        public void TestStandardWicket()
+        {
+            testMatch.Bowler = player6;
+            testMatch.Wicket("Bowled");
+            Assert.IsTrue(player1.IsOut);
+            Assert.AreEqual(player3, testMatch.OnStrike);
+            Assert.AreEqual(1, testMatch.Bowler.Wickets);
+        }
+
+        [Test()]
+        public void TestRunOut()
+        {
+            testMatch.Bowler = player6;
+            testMatch.Wicket("Run out", testMatch.OffStrike);
+            Assert.IsTrue(player2.IsOut);
+            Assert.AreEqual(player1, testMatch.OnStrike);
+            Assert.AreEqual(player3, testMatch.OffStrike);
+            Assert.AreEqual(0, testMatch.Bowler.Wickets);
+        }
+
+        [Test()]
+        public void TestRun()
+        {
+            testMatch.Bowler = player6;
+            testMatch.Runs(2);
+            Assert.AreEqual(2, testMatch.OnStrike.RunsScored);
+            Assert.AreEqual(2, testMatch.Bowler.RunsConceded);
+        }
+
+        [Test()]
+        public void TestRunSwitch()
+        {
+			testMatch.Bowler = player6;
+			testMatch.Runs(1);
+			Assert.AreEqual(player2, testMatch.OnStrike);
+            Assert.AreEqual(player1, testMatch.OffStrike);
+            Assert.AreEqual(0, player2.RunsScored);
+            Assert.AreEqual(1, player1.RunsScored);
+			Assert.AreEqual(1, testMatch.Bowler.RunsConceded);
+        }
+
+        [Test()]
+        public void TestDotBall()
+        {
+            testMatch.Bowler = player6;
+            testMatch.BallBowled("Dot", 0);
+            Assert.AreEqual(0, team1.Runs);
+            Assert.AreEqual(0.1, testMatch.Overs);
+            Assert.AreEqual(0, player1.RunsScored);
+            Assert.AreEqual(1, player1.BallsFaced);
+            Assert.AreEqual(0.1, player6.OversBowled);
+            Assert.AreEqual(0, player6.RunsConceded);
+        }
+
+        [Test()]
+        public void Test1Run()
+        {
+            testMatch.Bowler = player6;
+            testMatch.BallBowled("Runs", 1);
+			Assert.AreEqual(1, team1.Runs);
+			Assert.AreEqual(0.1, testMatch.Overs);
+            Assert.AreEqual(1, player1.RunsScored);
+			Assert.AreEqual(1, player1.BallsFaced);
+			Assert.AreEqual(0.1, player6.OversBowled);
+            Assert.AreEqual(1, player6.RunsConceded);
+        }
+
+        [Test()]
+        public void TestWide()
+        {
+			testMatch.Bowler = player6;
+			testMatch.BallBowled("Wide", 1);
+			Assert.AreEqual(1, team1.Runs);
+			Assert.AreEqual(0, testMatch.Overs, "overs wrong");
+			Assert.AreEqual(0, player1.RunsScored);
+			Assert.AreEqual(0, player1.BallsFaced);
+			Assert.AreEqual(0, player6.OversBowled);
+			Assert.AreEqual(1, player6.RunsConceded);
+        }
+
+        [Test()]
+        public void TestNoBall()
+        {
+			testMatch.Bowler = player6;
+			testMatch.BallBowled("No Ball", 2);
+			Assert.AreEqual(2, team1.Runs);
+			Assert.AreEqual(0, testMatch.Overs, "overs wrong");
+			Assert.AreEqual(1, player1.RunsScored);
+			Assert.AreEqual(0, player1.BallsFaced);
+			Assert.AreEqual(0, player6.OversBowled);
+			Assert.AreEqual(2, player6.RunsConceded);
+        }
+
+    }
 }
