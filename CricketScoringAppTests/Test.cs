@@ -341,8 +341,57 @@ namespace CricketScoringAppTests
 			Assert.AreEqual(0, testMatch.Overs, "overs wrong");
 			Assert.AreEqual(1, player1.RunsScored);
 			Assert.AreEqual(0, player1.BallsFaced);
+            Assert.AreEqual(player2, testMatch.OnStrike);
 			Assert.AreEqual(0, player6.OversBowled);
 			Assert.AreEqual(2, player6.RunsConceded);
+        }
+
+        [Test()]
+        public void TestWicketBall()
+        {
+            testMatch.Bowler = player6;
+            testMatch.BallBowled("Wicket", 0, "Bowled");
+			Assert.AreEqual(0, team1.Runs);
+			Assert.AreEqual(0.1, testMatch.Overs, "overs wrong");
+			Assert.IsTrue(player1.IsOut);
+            Assert.AreEqual("Bowled", player1.MethodOut);
+			Assert.AreEqual(1, player1.BallsFaced);
+			Assert.AreEqual(0.1, player6.OversBowled);
+			Assert.AreEqual(0, player6.RunsConceded);
+            Assert.AreEqual(1, player6.Wickets);
+            Assert.AreEqual(player3, testMatch.OnStrike);
+            Assert.AreEqual(1, team1.Wickets);
+        }
+
+        [Test()]
+        public void TestFullOver()
+        {
+            testMatch.Bowler = player6;
+            testMatch.BallBowled("Dot", 0);
+            testMatch.BallBowled("Runs", 1);
+            testMatch.BallBowled("Runs", 4);
+            testMatch.BallBowled("Wicket", 0, "LBW");
+            testMatch.BallBowled("Wide", 1);
+            testMatch.BallBowled("Runs", 2);
+            testMatch.BallBowled("Runs", 6);
+            Assert.AreEqual(14, team1.Runs);
+            Assert.AreEqual(1, team1.Wickets);
+            Assert.AreEqual(1.0, testMatch.Overs);
+            Assert.AreEqual(1, player1.RunsScored);
+            Assert.AreEqual(2, player1.BallsFaced);
+            Assert.AreEqual(4, player2.RunsScored);
+            Assert.AreEqual(2, player2.BallsFaced);
+            Assert.IsTrue(player2.IsOut);
+            Assert.AreEqual("LBW", player2.MethodOut);
+            Assert.AreEqual(8, player3.RunsScored);
+            Assert.AreEqual(2, player3.BallsFaced);
+            Assert.AreEqual(1, team1.Extras);
+            Assert.AreEqual(1.0, player6.OversBowled);
+            Assert.AreEqual(14, player6.RunsConceded);
+            Assert.AreEqual(1, player6.Wickets);
+            Assert.Null(testMatch.Bowler);
+            Assert.AreEqual(player1, testMatch.OnStrike);
+            Assert.AreEqual(player3, testMatch.OffStrike);
         }
 
     }

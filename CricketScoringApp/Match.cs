@@ -83,7 +83,7 @@ namespace CricketScoringApp
             OnStrike.MethodOut = method;
             Bowler.GetWicket();
             SetBatsmen();
-            InEndCheck();
+            Batting.CalcWickets();
         }
 
 		public void Wicket(string method, Player player)
@@ -93,7 +93,7 @@ namespace CricketScoringApp
             if (method != "Run out")
                 Bowler.GetWicket();
 			SetBatsmen();
-			//InEndCheck();
+			Batting.CalcWickets();
 		}
 
         public void Runs(int runs)
@@ -124,30 +124,41 @@ namespace CricketScoringApp
             if(outcome == "Runs"){
                 Runs(runs);
             }
-            if(outcome == "Byes"){
-                Batting.AddByes(runs);
-            }
-            if(outcome == "Leg Byes"){
-                Batting.AddLegByes(runs);
-            }
-            if(outcome == "Wide"){
-                Batting.AddWides(runs);
-                Bowler.ConcedeRuns(runs);
-            }
-            if(outcome == "No Ball"){
-                if (runs > 1)
-                {
-                    Batting.AddNoBalls(1);
-                    OnStrike.ScoreRuns(runs - 1);
-                    if (runs % 2 != 0)
-                        BatsmenSwap();
-                }
-                else
-                {
-                    Batting.AddNoBalls(runs);
-                }
-                Bowler.ConcedeRuns(runs);
-            }
+			if (outcome == "Byes")
+			{
+				Batting.AddByes(runs);
+				if (runs % 2 != 0)
+					BatsmenSwap();
+			}
+			if (outcome == "Leg Byes")
+			{
+				Batting.AddLegByes(runs);
+				if (runs % 2 != 0)
+					BatsmenSwap();
+			}
+			if (outcome == "Wide")
+			{
+				Batting.AddWides(runs);
+				if (runs-1 % 2 != 0)
+					BatsmenSwap();
+				Bowler.ConcedeRuns(runs);
+			}
+			if (outcome == "No Ball")
+			{
+				if (runs > 1)
+				{
+					int batRuns = runs - 1;
+					Batting.AddNoBalls(1);
+					OnStrike.ScoreRuns(batRuns);
+					if (batRuns % 2 != 0)
+						BatsmenSwap();
+				}
+				else
+				{
+					Batting.AddNoBalls(runs);
+				}
+				Bowler.ConcedeRuns(runs);
+			}
             Batting.CalcRuns();
             EndOfOverCheck();
             InEndCheck();
@@ -170,19 +181,36 @@ namespace CricketScoringApp
 			if (outcome == "Byes")
 			{
 				Batting.AddByes(runs);
+				if (runs % 2 != 0)
+					BatsmenSwap();
 			}
 			if (outcome == "Leg Byes")
 			{
 				Batting.AddLegByes(runs);
+				if (runs % 2 != 0)
+					BatsmenSwap();
 			}
-			if (outcome == "Wides")
+			if (outcome == "Wide")
 			{
 				Batting.AddWides(runs);
+                if (runs-1 % 2 != 0)
+					BatsmenSwap();
 				Bowler.ConcedeRuns(runs);
 			}
 			if (outcome == "No Ball")
 			{
-				Batting.AddNoBalls(runs);
+				if (runs > 1)
+				{
+					int batRuns = runs - 1;
+					Batting.AddNoBalls(1);
+					OnStrike.ScoreRuns(batRuns);
+					if (batRuns % 2 != 0)
+						BatsmenSwap();
+				}
+				else
+				{
+					Batting.AddNoBalls(runs);
+				}
 				Bowler.ConcedeRuns(runs);
 			}
             Wicket(methodOut);
@@ -194,7 +222,7 @@ namespace CricketScoringApp
 
         public void EndOfOverCheck()
         {
-            if(Overs - Math.Truncate(Overs) <= 0)
+            if(Overs - Math.Truncate(Overs) <= 0 && Bowler.OversBowled > 0)
             {
                 BatsmenSwap();
                 Bowler = null;
