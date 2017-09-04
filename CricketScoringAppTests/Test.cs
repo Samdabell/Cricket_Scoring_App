@@ -375,7 +375,7 @@ namespace CricketScoringAppTests
             testMatch.BallBowled("Runs", 2);
             testMatch.BallBowled("Runs", 6);
             Assert.AreEqual(14, team1.Runs);
-            Assert.AreEqual(1, team1.Wickets);
+            Assert.AreEqual(1, team1.Wickets, "wickets is wrong");
             Assert.AreEqual(1.0, testMatch.Overs);
             Assert.AreEqual(1, player1.RunsScored);
             Assert.AreEqual(2, player1.BallsFaced);
